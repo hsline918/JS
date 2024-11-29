@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Number guessing game</title>
+  </head>
+  <body>
+    <h1>This is a number guessing game.</h1>
+    <p>
+      You will need to guess a number between 1-100. If your answer is wrong, we
+      will tell you it's too high or too low. Maximum tryout is 10 times.
+    </p>
+    <h2>Let's play!</h2>
+    <input
+      type="text"
+      pattern="0?\d{1,2}|100"
+      title="please enter an integer between 1-100."
+      id="userInputNum"
+      required
+    />
+    <input type="submit" id="submit" value="Guess" />
+    <input type="submit" id="reset" value="Another round" />
+    <div id="result-container"></div>
+    <p id="errorMessage"></p>
+    <div id="rightOrWrong"></div>
+    <p id="input"></p>
+    <p id="round"></p>
+    <p id="outOfChance"></p>
+
+    <script src="numberGuessing.js"></script>
+  </body>
+</html>
