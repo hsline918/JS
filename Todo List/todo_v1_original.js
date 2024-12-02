@@ -31,7 +31,7 @@ function todoFunc(e) {
       todo.classList.remove("crossOut");
     }
   }
-  //delete todo
+  //delete todos
   cross.addEventListener("click", deleteTodo);
   function deleteTodo() {
     checkBox.remove();

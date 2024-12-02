@@ -24,7 +24,7 @@ function addToDo(e) {
 
 function renderContent() {
   todoList.textContent = "";
-  todos.map((todoItem) => List(todoItem));
+  todos.forEach((todoItem) => List(todoItem));
 }
 
 function List(todoItem) {
@@ -51,7 +51,7 @@ function List(todoItem) {
       todo.classList.remove("crossOut");
     }
   }
-  //delete todo
+  //delete todos
   cross.addEventListener("click", deleteTodo);
   function deleteTodo() {
     checkBox.remove();
@@ -72,4 +72,4 @@ function List(todoItem) {
 //3. 然後做render的動作：基本上還是需要DOM的操作。
 //4. 所以一步一步來就是先把所有的資料叫出來，然後append到DOM上面
 //5. 如果想要仔細調整render的形式，可以再把他包到另外一個function裡面，要render的時候呼叫他。
-//6. TODO: 要把delete的部分也要把陣列裡面的內容刪除
+//6. 要把delete的部分也要把陣列裡面的內容刪除
