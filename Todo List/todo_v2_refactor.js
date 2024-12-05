@@ -20,8 +20,10 @@ function addToDo(e) {
     order: todos.length,
   };
   todos.push(todo);
-  // console.log(todos);
-  renderContent(todos);
+
+  sortToDo();
+
+  // renderContent(todos);
 }
 
 sort.addEventListener("change", sortToDo);
@@ -33,7 +35,7 @@ function sortToDo() {
   }
   if (sort.value === "content") {
     sortedTodos.sort((a, b) => a.content.localeCompare(b.content));
-    console.log(todos);
+    // console.log(todos);
     //localeCompare可以處理『英文字母』以外的文字比對，也可以設定特別的使用方法。
 
     //由於資料包含數字和字串，所以要用更複雜的方式處理。
@@ -41,15 +43,23 @@ function sortToDo() {
   } else if (sort.value === "quantity") {
     sortedTodos.sort((a, b) => a.quantity - b.quantity);
   } else if (sort.value === "packed_status") {
-    sortedTodos.sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
-    //這裡如果沒有勾選的話，他會回到跟原始陣列一樣的排序。
+    for (let i = 0; i < todos.length; i++) {
+      console.log(todos[i].isChecked);
+      if (todos[i].isChecked === true) {
+        sortedTodos.sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
+        break;
+      }
+    }
   }
+  //這裡如果沒有勾選的話，他會回到跟原始陣列一樣的排序。
+  todos = sortedTodos;
+  //如果想要讓狀態保留在上一個sorted的結果，就需要更新todos.不然從一開始的let sortedTodos = [...todos];會一直用原始陣列來作潛拷貝，沒法保留修改過的陣列。
   renderContent(sortedTodos);
 }
 
-function renderContent(sortedTodos) {
+function renderContent(todos) {
   todoList.textContent = "";
-  sortedTodos.forEach((todoItem) => List(todoItem));
+  todos.forEach((todoItem) => List(todoItem));
 }
 
 function List(todoItem) {
@@ -69,7 +79,7 @@ function List(todoItem) {
 
   //clear inputs
   input.value = "";
-  selectQuantity.value = "";
+  selectQuantity.value = "1";
 
   //make sure check and crossed out styling is applied.
   checkBox.checked = todoItem.isChecked;
@@ -85,18 +95,26 @@ function List(todoItem) {
       todoItem.isChecked = true; //改變isChecked的狀態
     } else {
       todo.classList.remove("crossOut");
+      todoItem.isChecked = false;
     }
+    sortToDo();
   }
 
   //delete todos
   cross.addEventListener("click", deleteTodo);
   function deleteTodo() {
-    checkBox.remove();
-    todo.remove();
-    cross.remove();
+    //這裡有一個問題就是，他不需要call render就可以把資料show在網頁上面：是因為他直接操作DOM。
     todos = todos.filter((t) => t.id !== todoItem.id);
+    //資料更新
+    sortToDo();
+
+    //checkBox.remove();
+    // todo.remove();
+    // cross.remove();
+    //12/5 因為這裡使用remove()會把這三個元素直接移除，但如果其他地方還有用到這裡的資訊可能會造成資料不一的狀況。但下方有更新資料
+
     //這裡使用filter的原因只是為了要確認點擊下去的id(點擊就知道是哪一個id了)
-    console.log(todos);
+    // console.log(todos);
   }
 
   //使用規劃好的資料形式，則可以更好作sort的判斷
@@ -124,4 +142,5 @@ function List(todoItem) {
 //想到toSorted的方法和Claude討論，但這樣需要維護兩個陣列。所以我們用建立order index的方式來紀錄哪些todo是先加入的。用潛拷貝是預防我們排序錯誤，所拷貝出來操作的陣列，預防修改到原始陣列。
 //有注意到todo沒有跟checkbox關聯在一起，所以做了修正。
 //HTML 文件中：直接使用 for 屬性，JavaScript 中：必須使用 htmlFor 屬性(避免跟for迴圈搞//混)
-//目前的功能看起來正常，但還是如果沒有勾選check的部分，然後我之前是用別的方式排列，他會照input order排列。就不是沒有變動的結果。
+//目前的功能看起來正常，1. 但還是如果沒有勾選check的部分，然後我之前是用別的方式排列，他會照input order排列。就不是沒有變動的結果。
+//2. 另外一個是如果我沒有重新勾選的話(經過re-render)，他不會依照選取的內容直接渲染。->這裡需要添加一個『資料變更的時候需要主動觸發渲染』。
