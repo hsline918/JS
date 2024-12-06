@@ -1,13 +1,16 @@
-const input = document.querySelector("#input");
-const selectQuantity = document.querySelector("#select_quantity");
-const add = document.querySelector("#add_button");
-const todoList = document.querySelector("#todo_list");
-const sort = document.querySelector("#sort");
+const input = document.getElementById("input");
+const selectQuantity = document.getElementById("select_quantity");
+const add = document.getElementById("add_button");
+const todoList = document.getElementById("todo_list");
+const deleteList = document.getElementById("deleted_list");
+const sort = document.getElementById("sort");
+const restore = document.getElementById("restore");
 
 add.addEventListener("click", (e) => addToDo(e));
 //把寫進來的值都push都陣列裡面，再用排序的手法把他sort(並寫排序的邏輯)
 //把寫進來的值，改成add進來之後再push(只需要改eventlistener的對象就好)
 let todos = [];
+let deleteTodos = [];
 //如果要把資料型態改變，就是push的時候改變資料形式
 //再來是把todoContent的資料拆分開來，會比較好維護跟作接下來的資料處理。
 function addToDo(e) {
@@ -20,10 +23,7 @@ function addToDo(e) {
     order: todos.length,
   };
   todos.push(todo);
-
   sortToDo();
-
-  // renderContent(todos);
 }
 
 sort.addEventListener("change", sortToDo);
@@ -43,14 +43,16 @@ function sortToDo() {
   } else if (sort.value === "quantity") {
     sortedTodos.sort((a, b) => a.quantity - b.quantity);
   } else if (sort.value === "packed_status") {
-    for (let i = 0; i < todos.length; i++) {
-      console.log(todos[i].isChecked);
-      if (todos[i].isChecked === true) {
+    for (const i of todos) {
+      console.log(i.isChecked);
+      if (i.isChecked === true) {
         sortedTodos.sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
         break;
       }
     }
   }
+  //用更簡潔的方式，把他改成for...of 的寫法，比for迴圈更容易理解。
+
   //這裡如果沒有勾選的話，他會回到跟原始陣列一樣的排序。
   todos = sortedTodos;
   //如果想要讓狀態保留在上一個sorted的結果，就需要更新todos.不然從一開始的let sortedTodos = [...todos];會一直用原始陣列來作潛拷貝，沒法保留修改過的陣列。
@@ -60,6 +62,18 @@ function sortToDo() {
 function renderContent(todos) {
   todoList.textContent = "";
   todos.forEach((todoItem) => List(todoItem));
+}
+
+function renderDeleteTodos() {
+  deleteTodos.forEach((deletedTodo) => List(deletedTodo));
+}
+
+restore.addEventListener("click", (e) => restoreTodo(e));
+function restoreTodo(e) {
+  e.preventDefault();
+  let restoreTodo = deleteTodos.pop();
+  todos.push(restoreTodo);
+  sortToDo();
 }
 
 function List(todoItem) {
@@ -80,6 +94,7 @@ function List(todoItem) {
   //clear inputs
   input.value = "";
   selectQuantity.value = "1";
+  //如果沒有這一行的話，他會記住上次輸入的數量。可能還是讓他還原成1顯示初始狀態
 
   //make sure check and crossed out styling is applied.
   checkBox.checked = todoItem.isChecked;
@@ -104,17 +119,22 @@ function List(todoItem) {
   cross.addEventListener("click", deleteTodo);
   function deleteTodo() {
     //這裡有一個問題就是，他不需要call render就可以把資料show在網頁上面：是因為他直接操作DOM。
+
     todos = todos.filter((t) => t.id !== todoItem.id);
     //資料更新
-    sortToDo();
+    sortToDo(); //立刻render最新資料
 
-    //checkBox.remove();
-    // todo.remove();
-    // cross.remove();
+    const deleteTodo = todos.find((t) => t.id === todoItem.id);
+    //這個只會返回第一個找到的值
+    deleteTodos.push(deleteTodo);
+    deleteList.appendChild(checkBox);
+    label.appendChild(todo);
+    deleteList.appendChild(label);
+    deleteList.appendChild(cross);
+    //checkBox.remove(); todo.remove(); cross.remove();
     //12/5 因為這裡使用remove()會把這三個元素直接移除，但如果其他地方還有用到這裡的資訊可能會造成資料不一的狀況。但下方有更新資料
 
     //這裡使用filter的原因只是為了要確認點擊下去的id(點擊就知道是哪一個id了)
-    // console.log(todos);
   }
 
   //使用規劃好的資料形式，則可以更好作sort的判斷

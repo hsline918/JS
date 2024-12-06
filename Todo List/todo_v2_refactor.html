@@ -22,7 +22,12 @@
       <button id="add_button">New todo</button>
     </form>
     <main>
-      <ul id="todo_list" aria-label="list all the todos"></ul>
+      <div class="two-column">
+        <h3>todo list:</h3>
+        <ul id="todo_list" aria-label="list all the todos"></ul>
+        <h3>deleted todos:</h3>
+        <ul id="deleted_list" aria-label="list deleted todos"></ul>
+      </div>
     </main>
     <footer>
       <label for="sort">Sort:</label>
@@ -32,6 +37,7 @@
         <option value="quantity">Sort by quantity(small to large)</option>
         <option value="packed_status">sort by packed status</option>
       </select>
+      <button id="restore">restore delete</button>
     </footer>
     <script src="todo_v2_refactor.js"></script>
   </body>
