@@ -64,15 +64,14 @@ function renderContent(todos) {
   todos.forEach((todoItem) => List(todoItem));
 }
 
-function renderDeleteTodos() {
-  deleteTodos.forEach((deletedTodo) => List(deletedTodo));
-}
-
 restore.addEventListener("click", (e) => restoreTodo(e));
 function restoreTodo(e) {
   e.preventDefault();
   let restoreTodo = deleteTodos.pop();
+  //回傳陣列的最後一個元素
+  //console.log(deleteTodos); //確認認列是否正確，因為看起來陣列是undefined
   todos.push(restoreTodo);
+  renderDeleteTodos(deleteTodos);
   sortToDo();
 }
 
@@ -117,20 +116,25 @@ function List(todoItem) {
 
   //delete todos
   cross.addEventListener("click", deleteTodo);
+
   function deleteTodo() {
     //這裡有一個問題就是，他不需要call render就可以把資料show在網頁上面：是因為他直接操作DOM。
+
+    //另外一個問題，因為原先把todos filter掉了，然後又用find想要去找這個filter掉的元素。所以會return undefined.
+
+    //這個只會返回第一個找到的值。否則回傳 undefined
+    //所以現在的作法反過來，先find後filter.
+    const deleteTheTodo = todos.find((t) => t.id === todoItem.id);
+    deleteTodos.push(deleteTheTodo);
+    console.log(deleteTodos);
+    renderDeleteTodos(deleteTodos);
 
     todos = todos.filter((t) => t.id !== todoItem.id);
     //資料更新
     sortToDo(); //立刻render最新資料
 
-    const deleteTodo = todos.find((t) => t.id === todoItem.id);
-    //這個只會返回第一個找到的值
-    deleteTodos.push(deleteTodo);
-    deleteList.appendChild(checkBox);
-    label.appendChild(todo);
-    deleteList.appendChild(label);
-    deleteList.appendChild(cross);
+    //?這裡看起來不用再render一次就可以直接把deleted item append上去
+
     //checkBox.remove(); todo.remove(); cross.remove();
     //12/5 因為這裡使用remove()會把這三個元素直接移除，但如果其他地方還有用到這裡的資訊可能會造成資料不一的狀況。但下方有更新資料
 
@@ -144,6 +148,52 @@ function List(todoItem) {
   label.appendChild(todo);
   todoList.appendChild(label);
   todoList.appendChild(cross);
+}
+
+//12/9 這個是從todos挑出來（被使用者刪除）的資料，現在要把他顯示在deleted todos的區塊
+//以下為顯示的邏輯：（資料要把他寫是出來我們需要manipulate DOM）
+//我一樣可以修改讓他們維持一樣有可以按check的部分，只是delete不想要讓們一直觸發。這部份由於跟List是分開處理的，所以應該可以做得到
+function renderDeleteTodos(deleteTodos) {
+  deleteList.innerText = "";
+  deleteTodos.forEach((element) => DeleteTodosDom(element));
+}
+function DeleteTodosDom(element) {
+  const checkBox = document.createElement("input");
+  const todo = document.createElement("span");
+  const cross = document.createElement("span");
+  const label = document.createElement("label");
+
+  //DOM和資料的狀態要關聯起來:
+  checkBox.type = "checkbox";
+  checkBox.check = `${element.isChecked}`;
+  checkBox.id = `${element.id}`;
+  label.htmlFor = `${element.id}`;
+  todo.innerText = `${element.quantity} ${element.content}`;
+
+  //這裡要處理使用者輸入後的狀態管理，先確認使用者是否有勾選，然後再依此update數據
+  //注意，如果這裡沒有執行事件監聽器的話，程式會直接執行以下的邏輯，就不會apply css，因為初始狀態是一樣的
+  //注意checkbox打勾與否是checked屬性來控制，有打溝就是checked=true,反之則是false.
+
+  crossOut();
+  function crossOut() {
+    //一開始的狀態就跟todo list時候的一樣，直接取用狀態（這裡我不讓使用者可以修改checked與否。直接套用原先todo的樣式。）
+    if (element.isChecked === true) {
+      todo.classList.add("crossOut");
+      checkBox.checked = true;
+    } else {
+      todo.classList.remove("crossOut");
+      checkBox.checked = false;
+    }
+  }
+  // 這行使得我在deletedtodos也可以更改狀態
+  checkBox.addEventListener("click", crossOut);
+
+  cross.innerText = "❌";
+
+  deleteList.appendChild(checkBox);
+  label.appendChild(todo);
+  deleteList.appendChild(label);
+  deleteList.appendChild(cross);
 }
 
 //改寫成React的思考方式：
