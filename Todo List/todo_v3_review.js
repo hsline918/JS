@@ -46,6 +46,7 @@ function List(el) {
   checkBox.id = `${el.id}`;
   label.htmlFor = `${el.id}`;
 
+  //這個區塊主要在控制每一個to-do的邏輯：1.監聽變化 2.crossOut function裡面包含檢視瀏覽器丟回來的狀態->檢查是否要加上UI styling。3. 另外是要在同時更新這個元素的資料。 4.最後要讓UI在使用者輸入後同時顯示最新的UI排序。
   checkBox.addEventListener("click", crossOut);
   function crossOut() {
     //小心typo，這裡是checked不是check...打成check使用console.log會看不出來，因為他會返回undefined...
@@ -57,12 +58,15 @@ function List(el) {
     } else {
       quantity.classList.remove("crossOut");
       item.classList.remove("crossOut");
-      el.isChecked = true;
+      el.isChecked = false; //原本這裡都寫成true所以怎麼按狀態都是true ^^"
     }
+    sortTodo(); //這裡主要讓資料有修改之後馬上sort後render(可以讓頁面處於最新的狀態。)
+    //因為這部份有來自使用者的輸入，所以要特別處理資料更新的部分。
   }
 
   //這裡的功用是讓sort更改了陣列順序，還是有之前的styling。為使用之前使用者輸入的資料驅動UI
-  checkBox.checked = el.isChecked;
+  checkBox.checked = el.isChecked; //這行是使打勾的UI也和資料同步
+  //下方是劃掉的線和UI資料一樣同步
   if (el.isChecked === true) {
     quantity.classList.add("crossOut");
     item.classList.add("crossOut");
