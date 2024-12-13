@@ -169,6 +169,7 @@ function DeleteTodosDom(element) {
   checkBox.id = `${element.id}`;
   label.htmlFor = `${element.id}`;
   todo.innerText = `${element.quantity} ${element.content}`;
+  cross.innerText = "❌";
 
   //這裡要處理使用者輸入後的狀態管理，先確認使用者是否有勾選，然後再依此update數據
   //注意，如果這裡沒有執行事件監聽器的話，程式會直接執行以下的邏輯，就不會apply css，因為初始狀態是一樣的
@@ -185,10 +186,8 @@ function DeleteTodosDom(element) {
       checkBox.checked = false;
     }
   }
-  // 這行使得我在deletedtodos也可以更改狀態
+  // 這行使得我在deletedTodos也可以更改狀態
   checkBox.addEventListener("click", crossOut);
-
-  cross.innerText = "❌";
 
   deleteList.appendChild(checkBox);
   label.appendChild(todo);
